@@ -103,7 +103,7 @@ function init() {
 	session_start();
 
 	// set layout engine
-	$LAYOUT = new LayoutEngine("Sitepod");
+	$LAYOUT = new Sitepod\LayoutEngine("Sitepod");
 	$LAYOUT->setTitle("Welcome to Sitepod; a Sitemap Generator written in PHP");
 	$LAYOUT->setCharSet("iso-8859-1");
 	$LAYOUT->addCss('.history, .required { background-color:#E0E0E0; }');
@@ -228,14 +228,15 @@ function checkFile($filename) {
 	return $msg;
 }
 
-function getDateTimeISO($timestamp) {
-	date_default_timezone_set('UTC');
-	return date("Y-m-d\TH:i:s", $timestamp) . substr(date("O"),0,3) . ":" . substr(date("O"),3);
-}
-
-function getDateTimeISO_short($timestamp) {
-	date_default_timezone_set('UTC');
-	return date("Y-m-d", $timestamp);
+function getDateTimeISO($timestamp, $short = false) {
+    $geoData = (new Sitepod\GeoIp())->getGeoData($_SERVER['REMOTE_ADDR']);
+    $timeZone = new DateTimeZone($geoData['time_zone']);
+    date_default_timezone_set($timeZone->getName());
+    $dataString = 'Y-m-d';
+    if (!$short) {
+        $dataString .= '\TH:i:s';
+    }
+    return date($dataString, $timestamp) . substr(date("O"), 0, 3) . ":" . substr(date("O"), 3);
 }
 
 function getFrequency($lastmod) {
